@@ -41,7 +41,7 @@ namespace MathNet.Numerics.Providers.Common.Mkl
     /// </summary>
     [SuppressUnmanagedCodeSecurity]
     [SecurityCritical]
-    internal static class SafeNativeMethods
+    public static class SafeNativeMethods
     {
         // ReSharper disable InconsistentNaming
 
@@ -132,6 +132,59 @@ namespace MathNet.Numerics.Providers.Common.Mkl
         internal static extern void z_matrix_multiply(Transpose transA, Transpose transB, int m, int n, int k, Complex alpha, Complex[] x, Complex[] y, Complex beta, [In, Out] Complex[] c);
 
         #endregion BLAS
+
+        #region SpBLAS
+
+        [DllImport(_DllName, ExactSpelling = true, SetLastError = false, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int d_sparse_matrix_create_csr_3(out IntPtr A, int rows, int cols, int[] rows_start, int[] col_indx, double[] values);
+
+        /*
+DLLEXPORT blas_int d_sparse_matrix_create_csr(
+    sparse_matrix_t* A,
+    const blas_int rows,
+    const blas_int cols,
+    blas_int rows_start[],
+    blas_int rows_end[],
+    blas_int col_indx[],
+    double values[])
+         */
+        [DllImport(_DllName, ExactSpelling = true, SetLastError = false, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int d_sparse_matrix_create_csr(out IntPtr A, int rows, int cols, int[] rows_start, int[] rows_end, int[] col_indx, double[] values);
+
+        /*
+DLLEXPORT blas_int d_sparse_matrix_destroy(sparse_matrix_t A)
+        */
+        [DllImport(_DllName, ExactSpelling = true, SetLastError = false, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int d_sparse_matrix_destroy(IntPtr A);
+
+        /*
+DLLEXPORT blas_int d_sparse_set_hint(sparse_matrix_t A, CBLAS_TRANSPOSE transA, const blas_int dense_matrix_columns, const blas_int expected_calls)
+        */
+        [DllImport(_DllName, ExactSpelling = true, SetLastError = false, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int d_sparse_set_hint(IntPtr A, Transpose transA, int dense_matrix_columns, int expected_calls);
+
+        /*
+DLLEXPORT blas_int d_sparse_matrix_optimize(sparse_matrix_t A)
+        */
+        [DllImport(_DllName, ExactSpelling = true, SetLastError = false, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int d_sparse_matrix_optimize(IntPtr A);
+
+        /*
+DLLEXPORT blas_int d_sparse_matrix_multiply(
+    CBLAS_TRANSPOSE transA,
+    double alpha,
+    sparse_matrix_t A,
+    const double x[],
+    const blas_int columns, // n
+    const blas_int ldx, // k
+    double beta,
+    double y[],
+    const blas_int ldy) // m
+    */
+        [DllImport(_DllName, ExactSpelling = true, SetLastError = false, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int d_sparse_matrix_multiply(Transpose transA, double alpha, IntPtr A, double[] x, int columns, int ldx, double beta, double[] y, int ldy);
+
+        #endregion SpBLAS
 
         #region LAPACK
 

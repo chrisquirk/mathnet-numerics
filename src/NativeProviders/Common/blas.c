@@ -107,6 +107,17 @@ DLLEXPORT blas_int d_sparse_matrix_create_csr(
     return (blas_int)mkl_sparse_d_create_csr(A, SPARSE_INDEX_BASE_ZERO, rows, cols, (MKL_INT*)rows_start, (MKL_INT*)rows_end, (MKL_INT*)col_indx, (double*)values);
 }
 
+DLLEXPORT blas_int d_sparse_matrix_create_csr_3(
+    sparse_matrix_t* A,
+    const blas_int rows,
+    const blas_int cols,
+    blas_int* rows_start,
+    blas_int col_indx[],
+    double values[])
+{
+    return d_sparse_matrix_create_csr(A, rows, cols, rows_start, rows_start + 1, col_indx, values);
+}
+
 DLLEXPORT blas_int d_sparse_matrix_destroy(sparse_matrix_t A)
 {
     return (blas_int)mkl_sparse_destroy(A);
@@ -143,7 +154,7 @@ DLLEXPORT blas_int d_sparse_set_hint(sparse_matrix_t A, CBLAS_TRANSPOSE transA, 
     descr.type = SPARSE_MATRIX_TYPE_GENERAL;
     descr.mode = SPARSE_FILL_MODE_FULL;
     descr.diag = SPARSE_DIAG_NON_UNIT;
-    return (blas_int)mkl_sparse_set_mm_hint(A, op, descr, SPARSE_LAYOUT_ROW_MAJOR, dense_matrix_columns, expected_calls);
+    return (blas_int)mkl_sparse_set_mm_hint(A, op, descr, SPARSE_LAYOUT_COLUMN_MAJOR, dense_matrix_columns, expected_calls);
 }
 
 DLLEXPORT blas_int d_sparse_matrix_optimize(sparse_matrix_t A)
@@ -211,7 +222,7 @@ DLLEXPORT blas_int d_sparse_matrix_multiply(
         alpha,
         A,
         descr,
-        SPARSE_LAYOUT_ROW_MAJOR,
+        SPARSE_LAYOUT_COLUMN_MAJOR,
         x,
         columns,
         ldx,
