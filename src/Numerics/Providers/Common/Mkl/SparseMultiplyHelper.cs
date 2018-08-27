@@ -73,6 +73,7 @@ namespace MathNet.Numerics.Providers.Common.Mkl
         public void Hint(Transpose op, int finalColumns, int repCount)
         {
             MklMethods.d_sparse_set_hint(sparseHandle, op, finalColumns, repCount);
+            needToOptimize = true;
         }
 
         internal SparseMatrix origMatrix;
