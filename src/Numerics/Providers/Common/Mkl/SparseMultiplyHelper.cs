@@ -8,6 +8,7 @@ using MklMethods = MathNet.Numerics.Providers.Common.Mkl.SafeNativeMethods;
 using MathNet.Numerics.LinearAlgebra.Storage;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Providers.LinearAlgebra;
+using System.Runtime.InteropServices;
 
 namespace MathNet.Numerics.Providers.Common.Mkl
 {
@@ -17,6 +18,9 @@ namespace MathNet.Numerics.Providers.Common.Mkl
         {
             origMatrix = a;
             var storage = a.Storage as SparseCompressedRowMatrixStorage<double>;
+            h1 = GCHandle.Alloc(storage.RowPointers, GCHandleType.Pinned);
+            h2 = GCHandle.Alloc(storage.ColumnIndices, GCHandleType.Pinned);
+            h3 = GCHandle.Alloc(storage.Values, GCHandleType.Pinned);
             int retval = MklMethods.d_sparse_matrix_create_csr_3(out sparseHandle, a.RowCount, a.ColumnCount, storage.RowPointers, storage.ColumnIndices, storage.Values);
             if (retval != 0)
                 throw new Exception($"Failed to create MKL spblas sparse matrix handle: {retval}");
@@ -59,7 +63,11 @@ namespace MathNet.Numerics.Providers.Common.Mkl
             int n1 = c.RowCount;
             int n2 = b.RowCount;
             int n3 = c.ColumnCount;
+            var bpin = GCHandle.Alloc(bStor.Data, GCHandleType.Pinned);
+            var cpin = GCHandle.Alloc(cStor.Data, GCHandleType.Pinned);
             MklMethods.d_sparse_matrix_multiply(Transpose.Transpose, 1.0, sparseHandle, bStor.Data, n3, n2, 0.0, cStor.Data, n1);
+            bpin.Free();
+            cpin.Free();
         }
 
         internal void _Optimize()
@@ -79,6 +87,7 @@ namespace MathNet.Numerics.Providers.Common.Mkl
         internal SparseMatrix origMatrix;
         internal IntPtr sparseHandle = IntPtr.Zero;
         internal bool needToOptimize = false;
+        internal GCHandle h1, h2, h3;
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
@@ -96,6 +105,9 @@ namespace MathNet.Numerics.Providers.Common.Mkl
                 {
                     MklMethods.d_sparse_matrix_destroy(sparseHandle);
                     sparseHandle = IntPtr.Zero;
+                    h1.Free();
+                    h2.Free();
+                    h3.Free();
                 }
 
                 disposedValue = true;
