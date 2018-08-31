@@ -1,5 +1,4 @@
 * text=auto
-
 *.cs text diff=csharp
 *.msbuild text
 *.config text
@@ -9,21 +8,19 @@
 *.xml text
 *.js text
 *.ps1 text
-
 *.DotSettings text eol=lf
 *.sh text eol=lf
-
 *.csproj text merge=union
 *.fsproj text merge=union
 *.sln text eol=crlf merge=union
-
 *.jpg binary
 *.png binary
 *.gif binary
-
 *.doc diff=astextplain
 *.DOC diff=astextplain
 *.docx diff=astextplain
 *.DOCX diff=astextplain
 *.pdf diff=astextplain
 *.PDF diff=astextplain
+*.lib filter=lfs diff=lfs merge=lfs -text
+*.dll filter=lfs diff=lfs merge=lfs -text
